@@ -27,7 +27,7 @@ static ShaderProgramSource parseShader(const std::string&filePath) {
 
     std::string line;
     std::stringstream stringStream[2];
-    ShaderType type = ShaderType::NONE;
+    auto type = ShaderType::NONE;
     while (std::getline(stream, line)) {
         if (line.find("#shader") != std::string::npos) {
             if (line.find("vertex") != std::string::npos) {
@@ -37,7 +37,7 @@ static ShaderProgramSource parseShader(const std::string&filePath) {
                 type = ShaderType::FRAGMENT;
             }
         }
-        else {
+        else if (type != ShaderType::NONE) {
             stringStream[static_cast<int>(type)] << line << "\n";
         }
     }
@@ -45,7 +45,7 @@ static ShaderProgramSource parseShader(const std::string&filePath) {
     return {stringStream[0].str(), stringStream[1].str()};
 }
 
-static GLuint compileShader(GLuint type, const std::string&source) {
+static GLuint compileShader(const GLuint type, const std::string&source) {
     const GLuint id = glCreateShader(type);
     const char* src = source.c_str();
     glShaderSource(id, 1, &src, nullptr);
@@ -57,7 +57,7 @@ static GLuint compileShader(GLuint type, const std::string&source) {
         int length;
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
 
-        char* message = static_cast<char *>(alloca(length * sizeof(char)));
+        const auto message = static_cast<char *>(alloca(length * sizeof(char)));
         glGetShaderInfoLog(id, length, &length, message);
 
         std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << std::endl;
@@ -109,9 +109,9 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr);
 
-    const ShaderProgramSource source = parseShader("../resources/shaders/basic.glsl");
+    const auto [vertexSource, fragmentSource] = parseShader("../resources/shaders/basic.glsl");
 
-    const GLuint shader = createShader(source.vertexSource, source.fragmentSource);
+    const GLuint shader = createShader(vertexSource, fragmentSource);
     glUseProgram(shader);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
