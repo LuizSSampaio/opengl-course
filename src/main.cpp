@@ -1,5 +1,7 @@
+#include <fstream>
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -8,6 +10,40 @@ float vertices[] = {
     0.0f, 0.5f,
     0.5f, -0.5f
 };
+
+struct ShaderProgramSource {
+    std::string vertexSource;
+    std::string fragmentSource;
+};
+
+static ShaderProgramSource parseShader(const std::string&filePath) {
+    std::ifstream stream(filePath);
+
+    enum class ShaderType {
+        NONE = -1,
+        VERTEX = 0,
+        FRAGMENT = 1
+    };
+
+    std::string line;
+    std::stringstream stringStream[2];
+    ShaderType type = ShaderType::NONE;
+    while (std::getline(stream, line)) {
+        if (line.find("#shader") != std::string::npos) {
+            if (line.find("vertex") != std::string::npos) {
+                type = ShaderType::VERTEX;
+            }
+            else if (line.find("fragment") != std::string::npos) {
+                type = ShaderType::FRAGMENT;
+            }
+        }
+        else {
+            stringStream[static_cast<int>(type)] << line << "\n";
+        }
+    }
+
+    return {stringStream[0].str(), stringStream[1].str()};
+}
 
 static GLuint compileShader(GLuint type, const std::string&source) {
     const GLuint id = glCreateShader(type);
@@ -73,24 +109,9 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr);
 
-    const std::string vertexShader =
-        "#version 330 core\n"
-        "\n"
-        "layout (location = 0) in vec4 position;\n"
-        "\n"
-        "void main() {\n"
-        "    gl_Position = position;\n"
-        "}\n";
-    const std::string fragmentShader =
-        "#version 330 core\n"
-        "\n"
-        "layout (location = 0) out vec4 color;\n"
-        "\n"
-        "void main() {\n"
-        "    color = vec4(1.0, 0.0, 0.0, 1.0);\n"
-        "}\n";
+    const ShaderProgramSource source = parseShader("../resources/shaders/basic.glsl");
 
-    const GLuint shader = createShader(vertexShader, fragmentShader);
+    const GLuint shader = createShader(source.vertexSource, source.fragmentSource);
     glUseProgram(shader);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
