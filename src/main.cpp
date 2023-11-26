@@ -69,7 +69,7 @@ static ShaderProgramSource parseShader(const std::string&filePath) {
 }
 
 static GLuint compileShader(const GLuint type, const std::string&source) {
-    const GLuint id = glCreateShader(type);
+    GLCall(const GLuint id = glCreateShader(type));
     const char* src = source.c_str();
     GLCall(glShaderSource(id, 1, &src, nullptr));
     GLCall(glCompileShader(id));
@@ -94,7 +94,7 @@ static GLuint compileShader(const GLuint type, const std::string&source) {
 }
 
 static GLuint createShader(const std::string&vertexShaderSource, const std::string&fragmentShaderSource) {
-    const GLuint shaderProgram = glCreateProgram();
+    GLCall(const GLuint shaderProgram = glCreateProgram());
     const GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
     const GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
 
@@ -142,16 +142,32 @@ int main() {
     const GLuint shader = createShader(vertexSource, fragmentSource);
     GLCall(glUseProgram(shader));
 
+    GLCall(const GLint uniformLocation = glGetUniformLocation(shader, "uColor"));
+    ASSERT(uniformLocation != -1);
+    GLCall(glUniform4f(uniformLocation, 0.2f, 0.3f, 0.8f, 1.0f));
+
     //glBindBuffer(GL_ARRAY_BUFFER, 0);
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+    GLfloat red = 0.0f;
+    GLfloat increment = 0.00005f;
     while (!glfwWindowShouldClose(window)) {
         GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
         //glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
         //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
 
+        GLCall(glUniform4f(uniformLocation, red, 0.3f, 0.8f, 1.0f));
+
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+        if (red > 1.0f) {
+            increment = -0.00005f;
+        } else if (red < 0.0f) {
+            increment = 0.00005f;
+        }
+
+        red += increment;
 
         GLCall(glfwSwapBuffers(window));
 
