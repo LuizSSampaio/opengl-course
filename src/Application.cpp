@@ -5,10 +5,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#define ASSERT(x) if (!(x)) __debugbreak();
-#define GLCall(x) glClearError();\
-    x;\
-    ASSERT(glLogCall(#x, __FILE__, __LINE__));
+#include "Renderer.h"
+
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 GLfloat vertices[] = {
     -0.5f, -0.5f,
@@ -21,18 +21,6 @@ GLuint indices[] = {
     0, 1, 2,
     2, 3, 0
 };
-
-static void glClearError() {
-    while (glGetError() != GL_NO_ERROR);
-}
-
-static bool glLogCall(const char* function, const char* file, const int line) {
-    if (const GLenum error = glGetError()) {
-        std::cout << "[OpenGL Error] (" << error << "): " << file << " : " << line << std::endl;
-        return false;
-    }
-    return true;
-}
 
 struct ShaderProgramSource {
     std::string vertexSource;
@@ -132,18 +120,12 @@ int main() {
     GLCall(glGenVertexArrays(1, &vertexArrayObject));
     GLCall(glBindVertexArray(vertexArrayObject));
 
-    GLuint vertexBufferObject;
-    GLCall(glGenBuffers(1, &vertexBufferObject));
-    GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject));
-    GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(GLfloat), vertices, GL_STATIC_DRAW));
+    const VertexBuffer vertexBuffer(vertices, 4 * 2 * sizeof(GLfloat));
 
     GLCall(glEnableVertexAttribArray(0));
     GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr));
 
-    GLuint indexBufferObject;
-    GLCall(glGenBuffers(1, &indexBufferObject));
-    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject));
-    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), indices, GL_STATIC_DRAW));
+    const IndexBuffer indexBuffer(indices, 6);
 
     const auto [vertexSource, fragmentSource] = parseShader("../resources/shaders/basic.glsl");
 
@@ -156,8 +138,8 @@ int main() {
 
     GLCall(glUseProgram(0));
     GLCall(glBindVertexArray(0));
-    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+    vertexBuffer.UnBind();
+    indexBuffer.UnBind();
 
     GLfloat red = 0.0f;
     GLfloat increment = 0.00005f;
@@ -168,7 +150,7 @@ int main() {
         GLCall(glUniform4f(uniformLocation, red, 0.3f, 0.8f, 1.0f));
 
         GLCall(glBindVertexArray(vertexArrayObject));
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject));
+        indexBuffer.Bind();
 
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
@@ -184,8 +166,8 @@ int main() {
 
         GLCall(glfwPollEvents());
     }
-    GLCall(glDeleteBuffers(1, &vertexBufferObject));
-    GLCall(glDeleteBuffers(1,  &indexBufferObject));
+    delete &vertexBuffer;
+    delete &indexBuffer;
     GLCall(glDeleteProgram(shader));
 
     GLCall(glfwTerminate());
