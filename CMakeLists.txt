@@ -12,6 +12,10 @@ add_executable(opengl_course src/Application.cpp
         src/VertexBuffer.cpp
         src/VertexBuffer.h
         src/IndexBuffer.cpp
-        src/IndexBuffer.h)
+        src/IndexBuffer.h
+        src/VertexArray.cpp
+        src/VertexArray.h
+        src/VertexBufferLayout.h
+)
 
 target_link_libraries(opengl_course PRIVATE glfw glad)

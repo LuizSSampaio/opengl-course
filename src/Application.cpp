@@ -7,6 +7,7 @@
 
 #include "Renderer.h"
 
+#include "VertexArray.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
@@ -116,14 +117,13 @@ int main() {
 
     gladLoadGL();
 
-    GLuint vertexArrayObject;
-    GLCall(glGenVertexArrays(1, &vertexArrayObject));
-    GLCall(glBindVertexArray(vertexArrayObject));
-
+    const VertexArray vertexArray;
     const VertexBuffer vertexBuffer(vertices, 4 * 2 * sizeof(GLfloat));
 
-    GLCall(glEnableVertexAttribArray(0));
-    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr));
+    VertexBufferLayout layout;
+    layout.Push(GL_FLOAT, 2);
+    vertexArray.AddBuffer(vertexBuffer, layout);
+    vertexArray.Bind();
 
     const IndexBuffer indexBuffer(indices, 6);
 
@@ -140,6 +140,7 @@ int main() {
     GLCall(glBindVertexArray(0));
     vertexBuffer.UnBind();
     indexBuffer.UnBind();
+    vertexArray.UnBind();
 
     GLfloat red = 0.0f;
     GLfloat increment = 0.00005f;
@@ -149,14 +150,15 @@ int main() {
         GLCall(glUseProgram(shader));
         GLCall(glUniform4f(uniformLocation, red, 0.3f, 0.8f, 1.0f));
 
-        GLCall(glBindVertexArray(vertexArrayObject));
+        vertexArray.Bind();
         indexBuffer.Bind();
 
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
         if (red > 1.0f) {
             increment = -0.00005f;
-        } else if (red < 0.0f) {
+        }
+        else if (red < 0.0f) {
             increment = 0.00005f;
         }
 
@@ -168,6 +170,7 @@ int main() {
     }
     delete &vertexBuffer;
     delete &indexBuffer;
+    delete &vertexArray;
     GLCall(glDeleteProgram(shader));
 
     GLCall(glfwTerminate());
