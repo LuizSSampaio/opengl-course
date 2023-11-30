@@ -16,6 +16,8 @@ add_executable(opengl_course src/Application.cpp
         src/VertexArray.cpp
         src/VertexArray.h
         src/VertexBufferLayout.h
+        src/Shader.cpp
+        src/Shader.h
 )
 
 target_link_libraries(opengl_course PRIVATE glfw glad)
