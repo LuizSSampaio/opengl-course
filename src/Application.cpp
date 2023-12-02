@@ -12,12 +12,14 @@
 #include "VertexBufferLayout.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
+#include "Texture.h"
+#include "../thirdparty/glfw-3.3.8/deps/glad/gl.h"
 
 GLfloat vertices[] = {
-    -0.5f, -0.5f,
-    0.5f, -0.5f,
-    0.5f, 0.5f,
-    -0.5f, 0.5f
+    -0.5f, -0.5f, 0.0f, 0.0f,
+    0.5f, -0.5f, 1.0f, 0.0f,
+    0.5f, 0.5f, 1.0f, 1.0f,
+    -0.5f, 0.5f, 0.0f, 1.0f
 };
 
 GLuint indices[] = {
@@ -44,10 +46,14 @@ int main() {
 
     gladLoadGL();
 
+    GLCall(glBlendFunc(GL_SRC0_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    GLCall(glEnable(GL_BLEND));
+
     const VertexArray vertexArray;
-    const VertexBuffer vertexBuffer(vertices, 4 * 2 * sizeof(GLfloat));
+    const VertexBuffer vertexBuffer(vertices, 4 * 4 * sizeof(GLfloat));
 
     VertexBufferLayout layout;
+    layout.Push(GL_FLOAT, 2);
     layout.Push(GL_FLOAT, 2);
     vertexArray.AddBuffer(vertexBuffer, layout);
     vertexArray.Bind();
@@ -59,10 +65,15 @@ int main() {
 
     shader.SetUniform4f("uColor",0.2f, 0.3f, 0.8f, 1.0f);
 
+    const Texture texture("../resources/textures/pop_cat.png");
+    texture.Bind();
+    shader.SetUniform1i("u_Texture", 0);
+
     shader.UnBind();
     vertexBuffer.UnBind();
     indexBuffer.UnBind();
     vertexArray.UnBind();
+    texture.UnBind();
 
     constexpr Renderer renderer;
 
@@ -73,6 +84,8 @@ int main() {
 
         shader.Bind();
         shader.SetUniform4f("uColor", red, 0.3f, 0.8f, 1.0f);
+
+        texture.Bind();
 
         renderer.Draw(vertexArray, indexBuffer, shader);
 
@@ -89,6 +102,7 @@ int main() {
 
         GLCall(glfwPollEvents());
     }
+    delete &texture;
     delete &vertexBuffer;
     delete &indexBuffer;
     delete &vertexArray;

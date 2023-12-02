@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(thirdparty/glfw-3.3.8)
 add_subdirectory(thirdparty/glad)
+add_subdirectory(thirdparty/stb)
 
 add_executable(opengl_course src/Application.cpp
         src/Renderer.cpp
@@ -18,6 +19,8 @@ add_executable(opengl_course src/Application.cpp
         src/VertexBufferLayout.h
         src/Shader.cpp
         src/Shader.h
+        src/Texture.cpp
+        src/Texture.h
 )
 
-target_link_libraries(opengl_course PRIVATE glfw glad)
+target_link_libraries(opengl_course PRIVATE glfw glad stb)
