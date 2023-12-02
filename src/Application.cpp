@@ -4,6 +4,8 @@
 #include <sstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "Renderer.h"
 
@@ -13,13 +15,12 @@
 #include "IndexBuffer.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "../thirdparty/glfw-3.3.8/deps/glad/gl.h"
 
 GLfloat vertices[] = {
-    -0.5f, -0.5f, 0.0f, 0.0f,
-    0.5f, -0.5f, 1.0f, 0.0f,
-    0.5f, 0.5f, 1.0f, 1.0f,
-    -0.5f, 0.5f, 0.0f, 1.0f
+    100.0f, 100.0f, 0.0f, 0.0f,
+    200.0f, 100.0f, 1.0f, 0.0f,
+    200.0f, 200.0f, 1.0f, 1.0f,
+    100.0f, 200.0f, 0.0f, 1.0f
 };
 
 GLuint indices[] = {
@@ -36,7 +37,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(640, 480, "Hello World", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(960, 540, "Hello World", nullptr, nullptr);
     if (!window) {
         glfwTerminate();
         return -1;
@@ -46,8 +47,8 @@ int main() {
 
     gladLoadGL();
 
-    GLCall(glBlendFunc(GL_SRC0_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     GLCall(glEnable(GL_BLEND));
+    GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     const VertexArray vertexArray;
     const VertexBuffer vertexBuffer(vertices, 4 * 4 * sizeof(GLfloat));
@@ -58,12 +59,15 @@ int main() {
     vertexArray.AddBuffer(vertexBuffer, layout);
     vertexArray.Bind();
 
+    const glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+
     const IndexBuffer indexBuffer(indices, 6);
 
     Shader shader("../resources/shaders/basic.glsl");
     shader.Bind();
 
-    shader.SetUniform4f("uColor",0.2f, 0.3f, 0.8f, 1.0f);
+    shader.SetUniform4f("u_Color",0.2f, 0.3f, 0.8f, 1.0f);
+    shader.SetUniformMat4f("u_MVP", proj);
 
     const Texture texture("../resources/textures/pop_cat.png");
     texture.Bind();
@@ -83,7 +87,7 @@ int main() {
         renderer.Clear();
 
         shader.Bind();
-        shader.SetUniform4f("uColor", red, 0.3f, 0.8f, 1.0f);
+        shader.SetUniform4f("u_Color", red, 0.3f, 0.8f, 1.0f);
 
         texture.Bind();
 
