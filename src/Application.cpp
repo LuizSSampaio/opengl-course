@@ -17,6 +17,8 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#include "tests/TestClearColor.h"
+
 GLfloat vertices[] = {
     -50.0f, -50.0f, 0.0f, 0.0f,
     50.0f, -50.0f, 1.0f, 0.0f,
@@ -94,11 +96,17 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
+    test::TestClearColor test;
+
     glm::vec3 color(1.0f, 1.0f, 1.0f);
     glm::vec3 translation(200, 200, 0);
     glm::vec3 translation2(400, 400, 0);
     while (!glfwWindowShouldClose(window)) {
         renderer.Clear();
+
+        test.OnUpdate(0.0f);
+        test.OnRender();
+
 
         glm::mat4 model;
         glm::mat4 mvp;
@@ -142,6 +150,8 @@ int main() {
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::End();
         }
+
+        test.OnImGuiRender();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
