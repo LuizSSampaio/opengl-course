@@ -1,14 +1,15 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <sstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #include "Renderer.h"
-
 #include "VertexArray.h"
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
@@ -84,6 +85,8 @@ int main() {
     texture.UnBind();
 
     constexpr Renderer renderer;
+
+    IMGUI_CHECKVERSION();
 
     GLfloat red = 0.0f;
     GLfloat increment = 0.00005f;
