@@ -12,7 +12,13 @@ add_library(imgui STATIC
         imstb_truetype.h
         backends/imgui_impl_glfw.h
         backends/imgui_impl_opengl3.h
+        backends/imgui_impl_glfw.cpp
+        backends/imgui_impl_opengl3.cpp
+        imconfig.h
+        imgui.cpp
+        imgui_internal.h
 )
 
 target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/backends)
+target_include_directories(imgui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../glfw-3.3.8/include)
