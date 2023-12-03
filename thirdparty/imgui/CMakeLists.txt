@@ -3,6 +3,9 @@ project(imgui)
 
 add_library(imgui STATIC
         imgui.h
+        imgui.cpp
+        imconfig.h
+        imgui_internal.h
         imgui_demo.cpp
         imgui_draw.cpp
         imgui_widgets.cpp
@@ -14,9 +17,6 @@ add_library(imgui STATIC
         backends/imgui_impl_opengl3.h
         backends/imgui_impl_glfw.cpp
         backends/imgui_impl_opengl3.cpp
-        imconfig.h
-        imgui.cpp
-        imgui_internal.h
 )
 
 target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
