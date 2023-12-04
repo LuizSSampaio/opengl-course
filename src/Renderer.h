@@ -24,6 +24,7 @@ class Shader;
 class Renderer {
 public:
     void Clear() const;
+    void SetClearColor(float r, float g, float b, float a) const;
     void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader) const;
 };
 
