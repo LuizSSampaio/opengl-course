@@ -27,6 +27,8 @@ add_executable(opengl_course src/Application.cpp
         src/tests/TestClearColor.cpp
         src/tests/TestClearColor.h
         src/tests/Test.cpp
+        src/tests/TestTexture2D.cpp
+        src/tests/TestTexture2D.h
 )
 
 target_link_libraries(opengl_course PRIVATE glfw glad stb glm imgui)

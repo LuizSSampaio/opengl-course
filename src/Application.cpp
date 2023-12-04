@@ -10,15 +10,14 @@
 #include <imgui_impl_opengl3.h>
 
 #include "Renderer.h"
-#include "VertexArray.h"
-#include "VertexBuffer.h"
-#include "VertexBufferLayout.h"
-#include "IndexBuffer.h"
-#include "Shader.h"
-#include "Texture.h"
 
 #include "tests/test.h"
 #include "tests/TestClearColor.h"
+#include "tests/TestTexture2D.h"
+
+namespace test {
+    class TestTexture2D;
+}
 
 int main() {
     if (!glfwInit()) {
@@ -61,6 +60,8 @@ int main() {
     currentTest = testMenu;
 
     testMenu->RegisterTest<test::TestClearColor>("Clear Color");
+    //TODO: Fix this test registration (it's not working) crashing when compiling
+    testMenu->RegisterTest<test::TestTexture2D>("Texture 2D");
 
     while (!glfwWindowShouldClose(window)) {
         renderer.SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
